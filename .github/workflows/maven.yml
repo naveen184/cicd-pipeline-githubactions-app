@@ -14,11 +14,28 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Code
-      uses: actions/checkout@v2  
+    - name: Checkout repository
+      uses: actions/checkout@v2 
       
-    - name: Build and deploy with maven
-      run: mvn -B clean deploy -DmuleDeploy -s .maven/settings.xml
+    - name: Set Up JDK 11
+      uses: actions/setup-jaba@v2
+      with:
+        java-version: '11'
+        distribution: 'adopt'
+        cache: maven 
+      
+    - name: Build with maven
+      run: mvn -B clean package -s .maven/settings.xml
+      
+    - name: Upload Artifact
+      run: mkdir staging && cp target/*.jar staging
+    - uses: actions/upload-artifact@v2
+      with:
+        name: Package
+        path: staging      
+      
+    - name: Deploy with maven
+      run: mvn -B deploy -DmuleDeploy -s .maven/settings.xml      
       env:
           PLATFORM_USERNAME: ${{ secrets.PLATFORM_USERNAME }}
           PLATFORM_PASSWORD: ${{ secrets.PLATFORM_PASSWORD }}
