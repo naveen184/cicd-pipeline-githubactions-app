@@ -11,14 +11,32 @@ on:
 
 jobs:
   buildAndDeploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest 
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v2  
+      uses: actions/checkout@v2
       
-    - name: Build and Deploy with maven
-      run: mvn -B clean package deploy -DmuleDeploy -s .maven/settings.xml      
+    - name: Cache Depenedencies
+      uses: actions/setup-java@v2
+      with:
+        java-version: '11'
+        distribution: 'adopt'
+        cache: maven
+        
+    - name: Build with maven
+      run: mvn -B clean package -s .maven/settings.xml   
+
+    - name: Upload Artifact
+      run: mkdir staging && cp target/*.jar staging
+      
+    - uses: actions/upload-artifact@v2
+      with:
+        name: Package
+        path: staging
+      
+    - name: Deploy with maven
+      run: mvn -B deploy -DmuleDeploy -s .maven/settings.xml      
       env:
           PLATFORM_USERNAME: ${{ secrets.PLATFORM_USERNAME }}
           PLATFORM_PASSWORD: ${{ secrets.PLATFORM_PASSWORD }}
