@@ -12,6 +12,7 @@ on:
 jobs:
   buildAndDeploy:
     runs-on: ubuntu-latest 
+    environment: Prod
 
     steps:
     - name: Checkout repository
