@@ -5,6 +5,7 @@ name: Build and Deploy to Sandbox
 on:
   push:
     branches: [ main ]
+  workflow_dispatch:
     
 jobs:
   build:
@@ -26,8 +27,8 @@ jobs:
         distribution: 'adopt'
         cache: maven
     
-    - name: Build with Maven
-      run: mvn -B package --file pom.xml
+    - name: Build with maven
+      run: mvn -B clean package -s .maven/settings.xml
     
     - name: Stamp artifact file name with commit hash
       run: |
@@ -60,7 +61,8 @@ jobs:
 
     steps:    
     
-    - uses: actions/checkout@v2
+    - name: Checkout repository
+      uses: actions/checkout@v2
     
     - uses: actions/cache@v1
       with:
@@ -74,9 +76,7 @@ jobs:
         name: artifacts
     
     - name: Deploy to Sandbox
-      run: |
-        artifactName=$(ls *.jar | head -1)
-        mvn deploy -DmuleDeploy -DskipTests
+      run: mvn deploy -DmuleDeploy -DskipTests  --file pom.xml -s .maven/settings.xml
          
     - name: Notify Slack
       uses: act10ns/slack@v1.2.2
