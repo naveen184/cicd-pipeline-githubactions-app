@@ -5,7 +5,6 @@ name: Build and Deploy to Sandbox
 on:
   push:
     branches: [ main ]
-  workflow_dispatch:
     
 jobs:
   build:
@@ -77,10 +76,7 @@ jobs:
     - name: Deploy to Sandbox
       run: |
         artifactName=$(ls *.jar | head -1)
-        mvn deploy -DmuleDeploy \
-         -s .maven/settings.xml \
-         -Dmule.artifact=$artifactName \
-         -DskipTests
+        mvn deploy -DmuleDeploy -DskipTests
          
     - name: Notify Slack
       uses: act10ns/slack@v1.2.2
